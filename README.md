@@ -4,9 +4,9 @@ Suggests arguments and options for various Coverity commands.
 
 # Installation
 
-In all cases, you simply need to install the appropriate bash
-completion package (if not already installed) and then copy
-the `coverity` completion script from this repository into the right directory. For example:
+In all cases, you simply need to install the appropriate bash completion package
+(if not already installed) and then copy the `coverity` completion script from
+this repository into the right directory. For example:
 
 ```bash
 sudo apt-get install bash-completion
@@ -16,11 +16,10 @@ bash -l; # To start new shell
 
 # Usage
 
-For this completions to work, the `bin` directory for the Coverity Platform
-and/or Coverity Analysis Tools must be in your `$PATH`.
-
-At this time, completions are available only for some commands.  Here are
-some of my favorites:
+For these completions to work, the `bin` directory for the Coverity Platform
+and/or Coverity Analysis Tools must be in your `$PATH`. At this time,
+completions are available only for some commands.  Here are some of my
+favorites:
 
 ```bash
 $> cov-admin-db [TAB][TAB]
