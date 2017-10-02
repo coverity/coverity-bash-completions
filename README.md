@@ -10,7 +10,7 @@ the `coverity` completion script from this repository into the right directory. 
 
 ```bash
 sudo apt-get install bash-completion
-curl -sL https://raw.githubusercontent.com/thaljef/Coverity-Bash-Completion/master/coverity > /etc/bash_completion.d/coverity
+curl -sL https://raw.githubusercontent.com/coverity/coverity-bash-completions/master/coverity > /etc/bash_completion.d/coverity
 bash -l; # To start new shell
 ```
 
