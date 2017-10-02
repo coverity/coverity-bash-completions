@@ -14,6 +14,10 @@ curl -sL https://raw.githubusercontent.com/coverity/coverity-bash-completions/ma
 bash -l; # To start new shell
 ```
 
+In some cases, you may need to explicitly load the completion framework into your
+shell. This is usually done by adding something like `source /etc/bash_completion`
+to your `~\.bashrc` file.
+
 # Usage
 
 For these completions to work, the `bin` directory for the Coverity Platform
