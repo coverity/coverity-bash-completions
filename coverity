@@ -1,0 +1,229 @@
+#
+# Copyright 2017 Synopsys, Inc.
+# By Jeffrey Ryan Thalhammer <jeff@thaljef.org>
+#
+#----------------------------------------------------------------------------
+
+_cov_completions_from_help()
+{
+
+    local cmd=$1;
+    local short_opts=$2;
+
+    # TODO: Find a way to extract the short options too
+    local long_opts=$($cmd --help | grep ^- | awk -F '[ ,\r]' '{print $1}')
+    COMPREPLY=($(compgen -W "$long_opts $short_opts" -- $cur))
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+
+_cov-im-ctl()
+{
+     local cur prev words cword
+    _init_completion || return
+
+    if [[ $prev == cov-im-ctl* ]]; then
+        COMPREPLY=($(compgen -W 'start stop status maintenance' -- $cur))
+        return 0
+    fi
+
+    COMPREPLY=($(compgen -W '-w' -- $cur))
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+
+_cov-admin-db()
+{
+     local cur prev words cword
+    _init_completion || return
+
+    if [[ $prev == cov-admin-db* ]]; then
+        COMPREPLY=($(compgen -W 'backup restore optimize reset-admin-db' -- $cur))
+        return 0
+    fi
+
+    if [[ $prev == 'backup' || $prev == 'restore' ]]; then
+
+        if [[ $cur == -* ]]; then
+            COMPREPLY=($(compgen -W '--force --no-overwrite' -- $cur))
+            return 0
+        fi
+
+        COMPREPLY=($(compgen -G "${cur}*" -- $cur))
+        return 0
+    fi
+
+}
+
+#-----------------------------------------------------------------------------
+
+_cov-configure()
+{
+
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --config|--fs-library-path)
+            _filedir ;;
+        --template-dir|-td|--cygpath|--tmpdir|-t)
+            _filedir -d ;;
+        --comptype|-p)
+            local compilers=$(cov-configure -lsct | awk -F, '{print $1}')
+            COMPREPLY=($(compgen -W "$compilers" -- $cur)) ;;
+        --delete-compiler-config)
+            local configs=$(cov-configure -lscc text | tail -n+3 | awk -F, '{print $1}')
+            COMPREPLY=($(compgen -W "$configs" -- $cur)) ;;
+        --list-configured-compilers|-lscc)
+            COMPREPLY=($(compgen -W "csv json text" -- $cur)) ;;
+        --list-compiler-types|-lsct)
+            COMPREPLY=($(compgen -W "csv json test" -- $cur)) ;;
+        *)
+            _cov_completions_from_help cov-configure "-lsct -lscc -td -p -t"
+        esac
+
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+
+_cov-commit-defects()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --dir|--extra-output|-xo|--scm-project-root|--tmpdir|-t)
+            _filedir -d ;;
+        --auth-key-file|--config|--preview-report|--preview-report-v2|--scm-tool-path|-s|--strip-path|--security-file|-sf)
+            _filedir ;;
+        --on-new-cert)
+            COMPREPLY=($(compgen -W "distrust trust" -- $cur)) ;;
+        --encryption)
+            COMPREPLY=($(compgen -W "required preferred none" -- $cur)) ;;
+        --scm)
+            COMPREPLY=($(compgen -W "accurev clearcase cvs git hg perforce perforce2009 tfs{2008,2010,2012,2013}" -- $cur)) ;;
+        --ticker-mode)
+            COMPREPLY=($(compgen -W "none no-spin spin" -- $cur)) ;;
+        *)
+            _cov_completions_from_help cov-commit-defects "-t -sf -xo -pa -s"
+    esac
+
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+
+_cov-analyze()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --dir|--hibernate-config|--dtd|--strip-path|-s|--tmpdir|-t)
+            _filedir -d ;;
+        --config|--code-identity-file|--command|--derived-model-file)
+            _filedir ;;
+        --aggressiveness-level)
+            COMPREPLY=($(compgen -W "low medium high" -- $cur)) ;;
+        --checker-option|-co)
+            local checkers=$(cov-analyze --list-checkers | awk '{print $1 ":"}')
+            COMPREPLY=($(compgen -W "$checkers" -- $cur))
+            compopt -o nospace ;;
+        --enable|--disable|-en|-n)
+            local checkers=$(cov-analyze --list-checkers | awk '{print $1}')
+            COMPREPLY=($(compgen -W "$checkers" -- $cur)) ;;
+        --export-summaries)
+            COMPREPLY=($(compgen -W "true false" -- $cur)) ;;
+        --jobs|-j)
+            COMPREPLY=($(compgen -W "auto maxN N" -- $cur)) ;;
+        *)
+            _cov_completions_from_help cov-analyze "-en -n -j -co -t"
+    esac
+
+    return 0
+}
+
+
+#-----------------------------------------------------------------------------
+
+_cov-format-errors()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    _cov_completions_from_help cov-format-errors
+
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+
+_cov-build()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --dir|--fs-capture-search|--build-id-dir|--bullseye-dir|--bullseye-lib-dir|--cygpath|--log-dir|--merge-raw-coverage|--tmpdir|-t)
+            _filedir -d ;;
+        --config|--fs-capture-list|--build-id-file|--build-id-output|--coverity-repsonse-file|--cs-test-config)
+            _filedir ;;
+        --c-coverage)
+            COMPREPLY=($(compgen -W "gcov bullseye bullseye-small function" -- $cur)) ;;
+        --cs-test)
+            COMPREPLY=($(compgen -W "nunit xunit mstest" -- $cur)) ;;
+        --default-instrumentation-mode|-im)
+            COMPREPLY=($(compgen -W "include exclude" -- $cur)) ;;
+        --encoding|--system-encoding)
+            COMPREPLY=($(compgen -W "US-ASCII UTF-{8,16,16BE,16LE,32,32BE,32LE} ISO-8859-{1,2,3,4,5,6,7,8,9,10,13,15} Shift_JIS EUC-JP ISO-2022-JP GB2312 ISO-2022-CN BIG5" -- $cur)) ;;
+        --java-coverage)
+            COMPREPLY=($(compgen -W "cobertura jacoco" -- $cur)) ;;
+        *)
+            _cov_completions_from_help cov-build "-im -t -j -rpf -rpfe -rp -rws -ro -nrf"
+    esac
+
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+
+_cov-run-desktop()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    _cov_completions_from_help cov-run-desktop
+
+    return 0
+}
+
+#-----------------------------------------------------------------------------
+complete -F _cov-admin-db cov-admin-db
+complete -F _cov-analyze cov-analyze
+complete -F _cov-build cov-build
+complete -F _cov-commit-defects cov-commit-defects
+complete -F _cov-configure cov-configure
+complete -F _cov-format-errors cov-format-errors
+complete -F _cov-im-ctl cov-im-ctl
+complete -F _cov-run-desktop cov-run-desktop
+
+#-----------------------------------------------------------------------------
+# The following are necessary only for Cygwin, and only are needed
+# when the user has tab-completed the executable name and consequently
+# included the '.exe' suffix. Note this behaviour can be disabled by
+# using `shopt -s completion_strip_exe`
+
+if [ Cygwin = "$(uname -o 2>/dev/null)" ]; then
+complete -F _cov-admin-db cov-admin-db.exe
+complete -F _cov-analzye cov-analyze.exe
+complete -F _cov-build cov-build.exe
+complete -F _cov-commit-defects cov-commit-defects.exe
+complete -F _cov-configure cov-configure.exe
+complete -F _cov-format-errors cov-format-errors.exe
+complete -F _cov-im-ctl cov-im-ctl.exe
+complete -F _cov-run-desktop cov-run-desktop.exe
+
+fi
