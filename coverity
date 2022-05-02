@@ -145,9 +145,9 @@ _cov-analyze()
     case $prev in
         --dir|--hibernate-config|--dtd|--strip-path|-s|--tmpdir|-t)
             _filedir -d ;;
-        --config|--code-identity-file|--command|--derived-model-file)
+        --config|--command|--*-config|--*-file)
             _filedir ;;
-        --aggressiveness-level)
+        --*aggressiveness-level)
             COMPREPLY=($(compgen -W "low medium high" -- $cur)) ;;
         --checker-option|-co)
             local checkers=$(cov-analyze --list-checkers | awk '{print $1 ":"}')
@@ -156,12 +156,19 @@ _cov-analyze()
         --enable|--disable|-en|-n)
             local checkers=$(cov-analyze --list-checkers | awk '{print $1}')
             COMPREPLY=($(compgen -W "$checkers" -- $cur)) ;;
-        --export-summaries)
+        --export-summaries|--resolve-calls-to-all-delegates|--one-tu-per-psf)
             COMPREPLY=($(compgen -W "true false" -- $cur)) ;;
+        --checker-option)
+            local checkers=$(cov-analyze --list-checkers | awk '{print $1}')
+            COMPREPLY=($(compgen -W "$checkers" -- $cur)) ;;
         --jobs|-j)
             COMPREPLY=($(compgen -W "auto maxN N" -- $cur)) ;;
+        --ticker-mode)
+            COMPREPLY=($(compgen -W "none no-spin spin" -- $cur)) ;;
+        --verbose|-V)
+            COMPREPLY=(1 2 3 4) ;;
         *)
-            _cov_completions_from_help cov-analyze "-en -n -j -co -t"
+            _cov_completions_from_help cov-analyze "-en -n -j -co -t -V"
     esac
 
     return 0
